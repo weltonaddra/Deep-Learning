@@ -1,0 +1,16 @@
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\bin\Debug\net8.0-windows\AutoVision GUI.exe
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\bin\Debug\net8.0-windows\AutoVision GUI.deps.json
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\bin\Debug\net8.0-windows\AutoVision GUI.runtimeconfig.json
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\bin\Debug\net8.0-windows\AutoVision GUI.dll
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\bin\Debug\net8.0-windows\AutoVision GUI.pdb
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision_GUI.Form1.resources
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.vbproj.GenerateResource.cache
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.AssemblyInfoInputs.cache
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.AssemblyInfo.vb
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.vbproj.CoreCompileInputs.cache
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.dll
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\refint\AutoVision GUI.dll
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.pdb
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\AutoVision GUI.genruntimeconfig.cache
+C:\Users\psn\source\repos\Object Oriented Design\AutoVision GUI\AutoVision GUI\obj\Debug\net8.0-windows\ref\AutoVision GUI.dll
