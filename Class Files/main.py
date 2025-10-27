@@ -1,27 +1,40 @@
 from dataset import ChestXRayDataset
 from trainer import ModelTrainer
 from visuals import Visualizer
+from config import Config
 import torch
+import os
 
 def main():
-    # Load data
-    dataset = ChestXRayDataset(subset_fraction=1.0)
+    dataset = ChestXRayDataset(subset_fraction=1)  
+    print("Classes:", dataset.class_names)
 
-    # Preview batch
-    # Visualizer.show_batch(dataset.dataloaders['train'], dataset.class_names)
+    trainer = ModelTrainer(dataset) 
 
-    # Train and visualize results
-    trainer = ModelTrainer(dataset)
+    savedPath = "AutovisionVer1.pt"
+    if os.path.exists(savedPath):
+        trainer.load_checkpoint(savedPath)  # safe load
+
     trained_model = trainer.train_model()
+    trainer.test_model()
 
-    trained_model.load_state_dict(torch.load("resnet18_pneumonia.pt"))
-    trainer.visualize_model()
+    # Saves the models optimizer, scheduler and weights to train again later 
+    torch.save({
+        'model_state_dict': trainer.model.state_dict(),
+        'optimizer_state_dict': trainer.optimizer.state_dict() if hasattr(trainer, 'optimizer') else None,
+        'scheduler_state_dict': trainer.scheduler.state_dict() if hasattr(trainer, 'scheduler') else None,
+    }, savedPath)
 
-    print("Saving model...")
-    torch.save(trained_model.state_dict(), "resnet18_pneumonia.pt")
-    trained_model = trainer.train_model()
     trainer.visualize_model()
+    
 
 if __name__ == "__main__":
     main()
 
+
+
+
+
+
+    # Preview batch
+    # Visualizer.show_batch(dataset.dataloaders['train'], dataset.class_names)
