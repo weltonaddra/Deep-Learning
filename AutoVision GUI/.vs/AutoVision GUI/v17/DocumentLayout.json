@@ -1,0 +1,61 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\psn\\source\\repos\\Object Oriented Design\\AutoVision GUI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{36030283-AC0E-4BC7-B7BE-B67E5E9EBF9C}|AutoVision GUI\\AutoVision GUI.vbproj|c:\\users\\psn\\source\\repos\\object oriented design\\autovision gui\\autovision gui\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{36030283-AC0E-4BC7-B7BE-B67E5E9EBF9C}|AutoVision GUI\\AutoVision GUI.vbproj|solutionrelative:autovision gui\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36030283-AC0E-4BC7-B7BE-B67E5E9EBF9C}|AutoVision GUI\\AutoVision GUI.vbproj|c:\\users\\psn\\source\\repos\\object oriented design\\autovision gui\\autovision gui\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{36030283-AC0E-4BC7-B7BE-B67E5E9EBF9C}|AutoVision GUI\\AutoVision GUI.vbproj|solutionrelative:autovision gui\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.vb",
+              "DocumentMoniker": "C:\\Users\\psn\\source\\repos\\Object Oriented Design\\AutoVision GUI\\AutoVision GUI\\Form1.vb",
+              "RelativeDocumentMoniker": "AutoVision GUI\\Form1.vb",
+              "ToolTip": "C:\\Users\\psn\\source\\repos\\Object Oriented Design\\AutoVision GUI\\AutoVision GUI\\Form1.vb",
+              "RelativeToolTip": "AutoVision GUI\\Form1.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-10-11T21:55:41.154Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\psn\\source\\repos\\Object Oriented Design\\AutoVision GUI\\AutoVision GUI\\Form1.vb",
+              "RelativeDocumentMoniker": "AutoVision GUI\\Form1.vb",
+              "ToolTip": "C:\\Users\\psn\\source\\repos\\Object Oriented Design\\AutoVision GUI\\AutoVision GUI\\Form1.vb [Design]",
+              "RelativeToolTip": "AutoVision GUI\\Form1.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-10-11T21:33:57.966Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
