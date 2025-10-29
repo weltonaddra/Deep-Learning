@@ -39,7 +39,7 @@ class ChestXRayDataset:
         self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test']}
         self.device = self._get_device()
 
-        # print(f"✅ Using {self.device} device")
+        # print(f"Using {self.device} device")
         print(f"Classes: {self.class_names}")
         print(f"Train images: {self.dataset_sizes['train']}, Val images: {self.dataset_sizes['val']}, Test images: {self.dataset_sizes['test']}")
 
@@ -52,7 +52,7 @@ class ChestXRayDataset:
             # Sets the image folder for the split 
             ds = datasets.ImageFolder(os.path.join(self.data_dir, split), transform=self.transforms[split])
 
-            # If a smaller fraction of the dataset is picked, it sets a random seed and 
+            # If a smaller fraction of the dataset is picked, it sets a random seed and splits the dataset accordingly
             if self.subset_fraction < 1.0:
                 random.seed(self.seed)
                 np.random.seed(self.seed)
