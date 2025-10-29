@@ -23,16 +23,19 @@ class ModelTrainer:
         self.scaler = torch.cuda.amp.GradScaler() if torch.cuda.is_available() else None
 
     def _setup_optimizers_and_criterion(self):
-        """Compute class weights, create criterion, optimizer and OneCycleLR scheduler."""
+        # Compute class weights, create criterion, optimizer and OneCycleLR scheduler.
         weight_tensor = None
         try:
             train_ds = self.dataset.datasets['train']
             base_ds = train_ds.dataset if isinstance(train_ds, torch.utils.data.Subset) else train_ds
             targets = getattr(base_ds, 'targets', None)
+
             if targets is None:
                 targets = [s[1] for s in getattr(base_ds, 'samples', [])]
+
             counts = np.bincount(targets, minlength=len(self.dataset.class_names))
             counts = np.where(counts == 0, 1, counts)  # avoid division by zero
+
             class_weights = (1.0 / counts).astype(np.float32)
             class_weights = class_weights * (len(class_weights) / class_weights.sum())  # normalize
             weight_tensor = torch.tensor(class_weights, device=self.device)
@@ -63,19 +66,20 @@ class ModelTrainer:
             self.step_scheduler_per_batch = False
 
     def _build_model(self):
-        """Build ResNet18 and adapt final fc to num classes."""
+        # Build ResNet18 and adapt final fc to num classes
         try:
             weights = torchvision.models.ResNet18_Weights.DEFAULT
             model = torchvision.models.resnet18(weights=weights)
         except Exception:
             # older/newer torchvision compatibility fallback
             model = torchvision.models.resnet18(pretrained=True)
+
         num_ftrs = model.fc.in_features
         model.fc = torch.nn.Linear(num_ftrs, len(self.dataset.class_names))
         return model.to(self.device)
 
     def load_checkpoint(self, path, map_location=None, reinit_fc_if_mismatch=True):
-        """Safe checkpoint loader: loads matching keys and optionally reinitializes fc."""
+        # Safe checkpoint loader: loads matching keys and optionally reinitializes fc
         map_location = map_location or self.device
         ckpt = torch.load(path, map_location=map_location)
         # accept either full checkpoint or raw state_dict
@@ -98,7 +102,7 @@ class ModelTrainer:
 
         print(f"Loaded {len(matched)} / {len(saved_sd)} tensors from {path}")
 
-    def freeze_backbone(self):
+    def freeze_backbone(self):  
         """Freeze all layers except the final fc."""
         for name, param in self.model.named_parameters():
             if not name.startswith('fc'):
