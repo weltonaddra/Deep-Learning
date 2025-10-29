@@ -11,6 +11,7 @@ def main():
 
     trainer = ModelTrainer(dataset) 
 
+    # This is the name of the file where the model state dict will be saved
     savedPath = "AutovisionVer1.pt"
     if os.path.exists(savedPath):
         trainer.load_checkpoint(savedPath)  # safe load

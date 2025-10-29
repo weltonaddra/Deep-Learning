@@ -17,8 +17,7 @@ def letterbox_to_square(img: Image.Image, target=224):
     pad_w, pad_h = target - new_w, target - new_h
     pad_left, pad_right = pad_w // 2, pad_w - pad_w // 2
     pad_top, pad_bottom = pad_h // 2, pad_h - pad_h // 2
-    return ImageOps.expand(img, border=(pad_left, pad_top, pad_right, pad_bottom),
-                           fill=Config.PAD_FILL_RGB)
+    return ImageOps.expand(img, border=(pad_left, pad_top, pad_right, pad_bottom), fill=Config.PAD_FILL_RGB)
 
 
 class ChestXRayDataset:
@@ -45,7 +44,7 @@ class ChestXRayDataset:
         print(f"Train images: {self.dataset_sizes['train']}, Val images: {self.dataset_sizes['val']}, Test images: {self.dataset_sizes['test']}")
 
     def _build_datasets(self):
-        # Splits the dataset into 3 splits: train 
+        # Splits the dataset into 3 splits: train, val, test
         splits = ['train', 'val', 'test']
         datasets_dict = {}
 
