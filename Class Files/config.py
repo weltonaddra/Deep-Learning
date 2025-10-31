@@ -18,6 +18,5 @@ class Config:
     STEP_SIZE = 7
     GAMMA = 0.1
 
-    ## State Dict save file name 
    
 
