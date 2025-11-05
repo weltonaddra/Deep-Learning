@@ -9,7 +9,7 @@ from config import Config
 
 
 # Resizes Input images to match the expected input size while keeping the aspect ratio
-def letterbox_to_square(img: Image.Image, target=224):
+def letterbox_to_square(img: Image.Image, target=224) -> Image:
     w, h = img.size
     scale = target / max(w, h)
     new_w, new_h = int(round(w * scale)), int(round(h * scale))
@@ -17,13 +17,14 @@ def letterbox_to_square(img: Image.Image, target=224):
     pad_w, pad_h = target - new_w, target - new_h
     pad_left, pad_right = pad_w // 2, pad_w - pad_w // 2
     pad_top, pad_bottom = pad_h // 2, pad_h - pad_h // 2
+
     return ImageOps.expand(img, border=(pad_left, pad_top, pad_right, pad_bottom), fill=Config.PAD_FILL_RGB)
 
 
 class ChestXRayDataset:
     # Handles transforms, dataset creation, and dataloaders.
 
-    def __init__(self, data_dir=Config.DATA_DIR, img_size=Config.IMG_SIZE, subset_fraction=1.0, seed=42):
+    def __init__(self, data_dir=Config.DATA_DIR, img_size=Config.IMG_SIZE, subset_fraction=1.0, seed=42) -> None:
         self.data_dir = data_dir  # Path to dataset directory
         self.img_size = img_size  # The size the image should be after being resized
         self.transforms = self._build_transforms()  
@@ -43,7 +44,7 @@ class ChestXRayDataset:
         print(f"Classes: {self.class_names}")
         print(f"Train images: {self.dataset_sizes['train']}, Val images: {self.dataset_sizes['val']}, Test images: {self.dataset_sizes['test']}")
 
-    def _build_datasets(self):
+    def _build_datasets(self) -> dict:
         # Splits the dataset into 3 splits: train, val, test
         splits = ['train', 'val', 'test']
         datasets_dict = {}
@@ -52,7 +53,7 @@ class ChestXRayDataset:
             # Sets the image folder for the split 
             ds = datasets.ImageFolder(os.path.join(self.data_dir, split), transform=self.transforms[split])
 
-            # If a smaller fraction of the dataset is picked, it sets a random seed and splits the dataset accordingly
+            # If a smaller fraction of the dataset is picked, it sets a random seed and splits the dataset accordingly 
             if self.subset_fraction < 1.0:
                 random.seed(self.seed)
                 np.random.seed(self.seed)
@@ -62,7 +63,7 @@ class ChestXRayDataset:
             datasets_dict[split] = ds
         return datasets_dict
 
-    def _build_transforms(self):
+    def _build_transforms(self) -> dict:
         letterbox_224 = transforms.Lambda(lambda im: letterbox_to_square(im, target=self.img_size))
         return {
             'train': transforms.Compose([
@@ -87,7 +88,7 @@ class ChestXRayDataset:
             ])
         }
 
-    def _build_dataloaders(self):
+    def _build_dataloaders(self) -> dict:
         return {
             'train': torch.utils.data.DataLoader(
                 self.datasets['train'], batch_size=Config.BATCH_SIZE, shuffle=True, num_workers=Config.NUM_WORKERS),
@@ -97,7 +98,7 @@ class ChestXRayDataset:
                 self.datasets['val'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS)
         }
 
-    def _get_device(self):
+    def _get_device(self) -> str:
         try:
             return torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
         except AttributeError:
