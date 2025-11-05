@@ -24,22 +24,22 @@ class ChestXRayDataset:
     # Handles transforms, dataset creation, and dataloaders.
 
     def __init__(self, data_dir=Config.DATA_DIR, img_size=Config.IMG_SIZE, subset_fraction=1.0, seed=42):
-        self.data_dir = data_dir
-        self.img_size = img_size
-        self.transforms = self._build_transforms()
-        self.subset_fraction = subset_fraction
-        self.seed = seed
+        self.data_dir = data_dir  # Path to dataset directory
+        self.img_size = img_size  # The size the image should be after being resized
+        self.transforms = self._build_transforms()  
+        self.subset_fraction = subset_fraction   # size of the dataset to use (for quick testing)
+        self.seed = seed  # seed for producing consistent results
 
         # Build datasets and store class names from the original ImageFolder
         orig_train_ds = datasets.ImageFolder(os.path.join(self.data_dir, 'train'), transform=self.transforms['train'])
         self.class_names = orig_train_ds.classes
 
+        # Calls functions to build the datasets, data loaders and gets the current device type 
         self.datasets = self._build_datasets()
         self.dataloaders = self._build_dataloaders()
         self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test']}
         self.device = self._get_device()
 
-        # print(f"Using {self.device} device")
         print(f"Classes: {self.class_names}")
         print(f"Train images: {self.dataset_sizes['train']}, Val images: {self.dataset_sizes['val']}, Test images: {self.dataset_sizes['test']}")
 
