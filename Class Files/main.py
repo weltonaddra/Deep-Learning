@@ -3,11 +3,11 @@ from trainer import ModelTrainer
 from visuals import Visualizer
 from config import Config
 import torch
+
 import os
 
 def main():
     dataset = ChestXRayDataset(subset_fraction=1)  
-    print("Classes:", dataset.class_names)
 
     trainer = ModelTrainer(dataset) 
 

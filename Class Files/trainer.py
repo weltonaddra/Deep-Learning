@@ -17,7 +17,7 @@ class ModelTrainer:
     def __init__(self, dataset):
         self.dataset = dataset
         self.device = dataset.device
-        self.model = self._build_model()
+        self.model = self.build_model()
         # optimizer/criterion/scheduler/scaler will be set here
         self._setup_optimizers_and_criterion()
         self.scaler = torch.cuda.amp.GradScaler() if torch.cuda.is_available() else None
@@ -44,7 +44,7 @@ class ModelTrainer:
 
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight_tensor) if weight_tensor is not None else torch.nn.CrossEntropyLoss()
 
-        # optimizer - AdamW good default for fine-tuning
+        # optimizer - AdamW used for fine-tuning model
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=Config.LR, weight_decay=1e-4)
 
         # OneCycleLR needs steps_per_epoch
@@ -65,7 +65,7 @@ class ModelTrainer:
             self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=Config.STEP_SIZE, gamma=Config.GAMMA)
             self.step_scheduler_per_batch = False
 
-    def _build_model(self):
+    def build_model(self):
         # Build ResNet18 and adapt final fc to num classes
         try:
             weights = torchvision.models.ResNet18_Weights.DEFAULT
