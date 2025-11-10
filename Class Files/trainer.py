@@ -20,34 +20,37 @@ class ModelTrainer:
         self.model = self.build_model()
         # optimizer/criterion/scheduler/scaler will be set here
         self._setup_optimizers_and_criterion()
-        self.scaler = torch.cuda.amp.GradScaler() if torch.cuda.is_available() else None
+        self.scaler = torch.amp.GradScaler() if torch.cuda.is_available() else None
 
     def _setup_optimizers_and_criterion(self):
         # Compute class weights, create criterion, optimizer and OneCycleLR scheduler.
         weight_tensor = None
         try:
             train_ds = self.dataset.datasets['train']
-            base_ds = train_ds.dataset if isinstance(train_ds, torch.utils.data.Subset) else train_ds
-            targets = getattr(base_ds, 'targets', None)
+            base_ds = train_ds.dataset if isinstance(train_ds, torch.utils.data.Subset) else train_ds #if train is a subset, get the underlying dataset
+            targets = getattr(base_ds, 'targets', None) #Targets is a list or tensor that matches each image to a class index
 
             if targets is None:
                 targets = [s[1] for s in getattr(base_ds, 'samples', [])]
-
+           
+           # Counts the number of samples per class 
             counts = np.bincount(targets, minlength=len(self.dataset.class_names))
             counts = np.where(counts == 0, 1, counts)  # avoid division by zero
 
+            #Computes the class weights based on the counts, more rare classes get higher weights
             class_weights = (1.0 / counts).astype(np.float32)
             class_weights = class_weights * (len(class_weights) / class_weights.sum())  # normalize
             weight_tensor = torch.tensor(class_weights, device=self.device)
         except Exception:
             weight_tensor = None
 
+        #This is the loss function penalizing misclassifications
         self.criterion = torch.nn.CrossEntropyLoss(weight=weight_tensor) if weight_tensor is not None else torch.nn.CrossEntropyLoss()
 
         # optimizer - AdamW used for fine-tuning model
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=Config.LR, weight_decay=1e-4)
 
-        # OneCycleLR needs steps_per_epoch
+        # OneCycleLR scheduler - adjusts learning rate during training for how much a model should adjust its weights
         train_loader = self.dataset.dataloaders.get('train')
         steps_per_epoch = max(1, len(train_loader)) if train_loader is not None else 1
         try:
@@ -80,6 +83,7 @@ class ModelTrainer:
 
     def load_checkpoint(self, path, map_location=None, reinit_fc_if_mismatch=True):
         # Safe checkpoint loader: loads matching keys and optionally reinitializes fc
+
         map_location = map_location or self.device
         ckpt = torch.load(path, map_location=map_location)
         # accept either full checkpoint or raw state_dict
@@ -113,7 +117,7 @@ class ModelTrainer:
             param.requires_grad = True
 
     def train_model(self, num_epochs=Config.NUM_EPOCHS, freeze_head_epochs=1, use_amp=True):
-        """Train with optional freeze-then-unfreeze strategy, OneCycleLR (per-batch) and AMP."""
+        #Train with optional freeze-then-unfreeze strategy, OneCycleLR (per-batch) and AMP.
         since = time.time()
         cudnn.benchmark = True
 

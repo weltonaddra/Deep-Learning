@@ -31,7 +31,7 @@ class ChestXRayDataset:
         self.subset_fraction = subset_fraction   # size of the dataset to use (for quick testing)
         self.seed = seed  # seed for producing consistent results
 
-        # Build datasets and store class names from the original ImageFolder
+        # Loads the original training datasets so it can get the class names 
         orig_train_ds = datasets.ImageFolder(os.path.join(self.data_dir, 'train'), transform=self.transforms['train'])
         self.class_names = orig_train_ds.classes
 

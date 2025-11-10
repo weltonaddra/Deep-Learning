@@ -7,13 +7,13 @@ class Config:
     PAD_FILL_RGB  = tuple(int(m * 255) for m in IMAGENET_MEAN)
 
     DATA_DIR   = os.path.join("Class Files" , "chest_xray")
-    BATCH_SIZE =  32 # Number of examples in a batch 
+    BATCH_SIZE =  64 # Number of examples in a batch 
     NUM_WORKERS = 0
     IMG_SIZE = 224
 
     # Training hyperparameters
     NUM_EPOCHS = 25
-    LR = 0.01
+    LR = 0.1
     MOMENTUM = 0.9
     STEP_SIZE = 7
     GAMMA = 0.1

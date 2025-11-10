@@ -7,12 +7,12 @@ import torch
 import os
 
 def main():
-    dataset = ChestXRayDataset(subset_fraction=1)  
+    dataset = ChestXRayDataset(subset_fraction=0.1)  
 
     trainer = ModelTrainer(dataset) 
 
     # This is the name of the file where the model state dict will be saved
-    savedPath = "AutovisionVer1.pt"
+    savedPath = "AutovisionVer2.pt"
     if os.path.exists(savedPath):
         trainer.load_checkpoint(savedPath)  # safe load
 
