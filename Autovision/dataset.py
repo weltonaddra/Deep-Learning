@@ -38,15 +38,17 @@ class ChestXRayDataset:
         # Calls functions to build the datasets, data loaders and gets the current device type 
         self.datasets = self._build_datasets()
         self.dataloaders = self._build_dataloaders()
-        self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test']}
+        self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test', 'selected']}
         self.device = self._get_device()
 
         print(f"Classes: {self.class_names}")
         print(f"Train images: {self.dataset_sizes['train']}, Val images: {self.dataset_sizes['val']}, Test images: {self.dataset_sizes['test']}")
+        
+
 
     def _build_datasets(self) -> dict:
-        # Splits the dataset into 3 splits: train, val, test
-        splits = ['train', 'val', 'test']
+        # Splits the dataset into 4 splits: train, val, test, selected (This is for t)
+        splits = ['train', 'val', 'test','selected']
         datasets_dict = {}
 
         for split in splits:
@@ -61,6 +63,7 @@ class ChestXRayDataset:
                 ds = torch.utils.data.Subset(ds, indices)
 
             datasets_dict[split] = ds
+            
         return datasets_dict
 
     def _build_transforms(self) -> dict:
@@ -80,6 +83,12 @@ class ChestXRayDataset:
                 transforms.ToTensor(),
                 transforms.Normalize(Config.IMAGENET_MEAN, Config.IMAGENET_STD)
             ]),
+            'selected': transforms.Compose([
+                transforms.Grayscale(num_output_channels=3),
+                letterbox_224,
+                transforms.ToTensor(),
+                transforms.Normalize(Config.IMAGENET_MEAN, Config.IMAGENET_STD)
+            ]),
             'val': transforms.Compose([
                 transforms.Grayscale(num_output_channels=3),
                 letterbox_224,
@@ -93,7 +102,9 @@ class ChestXRayDataset:
             'train': torch.utils.data.DataLoader(
                 self.datasets['train'], batch_size=Config.BATCH_SIZE, shuffle=True, num_workers=Config.NUM_WORKERS),
             'test': torch.utils.data.DataLoader(
-                self.datasets['test'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS),           
+                self.datasets['test'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS),
+            'selected': torch.utils.data.DataLoader(
+                self.datasets['selected'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS),           
             'val': torch.utils.data.DataLoader(
                 self.datasets['val'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS)
         }

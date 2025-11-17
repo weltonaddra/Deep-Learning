@@ -7,19 +7,21 @@ import torch
 import os
 
 def main():
-    dataset = ChestXRayDataset(subset_fraction=0.1)  
+    dataset = ChestXRayDataset(subset_fraction=1)  
 
     trainer = ModelTrainer(dataset) 
 
     # This is the name of the file where the model state dict will be saved
-    savedPath = "AutovisionVer2.pt"
+    savedPath = "AutovisionVer1.pt"
     if os.path.exists(savedPath):
         trainer.load_checkpoint(savedPath)  # safe load
 
     trained_model = trainer.train_model()
     trainer.test_model()
+    
 
     # Saves the models optimizer, scheduler and weights to train again later 
+    print(f"Saving model to {savedPath}")
     torch.save({
         'model_state_dict': trainer.model.state_dict(),
         'optimizer_state_dict': trainer.optimizer.state_dict() if hasattr(trainer, 'optimizer') else None,

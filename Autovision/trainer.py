@@ -69,16 +69,16 @@ class ModelTrainer:
             self.step_scheduler_per_batch = False
 
     def build_model(self):
-        # Build ResNet18 and adapt final fc to num classes
+        # Build EfficientNet and adapt final fc to num classes
         try:
-            weights = torchvision.models.ResNet18_Weights.DEFAULT
-            model = torchvision.models.resnet18(weights=weights)
+            weights = torchvision.models.EfficientNet_B0_Weights.DEFAULT
+            model = torchvision.models.efficientnet_b0(weights=weights)
         except Exception:
-            # older/newer torchvision compatibility fallback
-            model = torchvision.models.resnet18(pretrained=True)
+            # Fallback for older/newer torchvision compatibility
+            model = torchvision.models.efficientnet_b0(pretrained=True)
 
-        num_ftrs = model.fc.in_features
-        model.fc = torch.nn.Linear(num_ftrs, len(self.dataset.class_names))
+        num_ftrs = model.classifier[1].in_features
+        model.classifier = torch.nn.Linear(num_ftrs, len(self.dataset.class_names))
         return model.to(self.device)
 
     def load_checkpoint(self, path, map_location=None, reinit_fc_if_mismatch=True):
@@ -86,6 +86,7 @@ class ModelTrainer:
 
         map_location = map_location or self.device
         ckpt = torch.load(path, map_location=map_location)
+
         # accept either full checkpoint or raw state_dict
         saved_sd = ckpt.get('model_state_dict', ckpt) if isinstance(ckpt, dict) else ckpt
         cur_sd = self.model.state_dict()
@@ -94,23 +95,71 @@ class ModelTrainer:
         cur_sd.update(matched)
         self.model.load_state_dict(cur_sd)
 
-        # reinit final fc if mismatch between saved and current
-        if reinit_fc_if_mismatch and 'fc.weight' in saved_sd:
-            saved_shape = saved_sd['fc.weight'].shape
-            cur_shape = self.model.fc.weight.shape
-            if saved_shape != cur_shape:
-                in_features = self.model.fc.in_features
-                out_features = len(self.dataset.class_names)
-                self.model.fc = torch.nn.Linear(in_features, out_features).to(self.device)
-                print(f"Reinitialized final fc: {in_features} -> {out_features} (checkpoint head {saved_shape} != model head {cur_shape})")
+        # Reinitialize final classification head if mismatch between saved and current.
+        # Support models that use either `fc` or `classifier` naming (different torchvision versions).
+        try:
+            if reinit_fc_if_mismatch:
+                # prefer explicit fc if present in checkpoint
+                if 'fc.weight' in saved_sd and hasattr(self.model, 'fc'):
+                    saved_shape = saved_sd['fc.weight'].shape
+                    cur_shape = self.model.fc.weight.shape
+                    if saved_shape != cur_shape:
+                        in_features = self.model.fc.in_features
+                        out_features = len(self.dataset.class_names)
+                        self.model.fc = torch.nn.Linear(in_features, out_features).to(self.device)
+                        print(f"Reinitialized final fc: {in_features} -> {out_features} (checkpoint head {saved_shape} != model head {cur_shape})")
+                # handle classifier (e.g., EfficientNet) which stores head under `classifier`
+                elif 'classifier.1.weight' in saved_sd or 'classifier.weight' in saved_sd:
+                    # find current classifier layer object and its weight shape if available
+                    if hasattr(self.model, 'classifier'):
+                        try:
+                            # some classifier implementations are Sequential([... , Linear])
+                            cls_module = self.model.classifier
+                            if isinstance(cls_module, torch.nn.Sequential):
+                                # assume last module is the Linear layer
+                                last = list(cls_module.modules())[-1]
+                                cur_shape = last.weight.shape
+                                saved_key = 'classifier.1.weight' if 'classifier.1.weight' in saved_sd else 'classifier.weight'
+                                saved_shape = saved_sd[saved_key].shape
+                                if saved_shape != cur_shape:
+                                    in_features = last.in_features
+                                    out_features = len(self.dataset.class_names)
+                                    # replace classifier appropriately
+                                    cls_module[-1] = torch.nn.Linear(in_features, out_features)
+                                    self.model.classifier = cls_module.to(self.device)
+                                    print(f"Reinitialized classifier head: {in_features} -> {out_features} (checkpoint head {saved_shape} != model head {cur_shape})")
+                        except Exception:
+                            pass
+        except Exception:
+            # don't fail loading for any reinit step
+            pass
 
         print(f"Loaded {len(matched)} / {len(saved_sd)} tensors from {path}")
 
     def freeze_backbone(self):  
-        """Freeze all layers except the final fc."""
-        for name, param in self.model.named_parameters():
-            if not name.startswith('fc'):
-                param.requires_grad = False
+        # Freeze all layers except the final classification head.
+
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        # Re-enable grads for the final classification head depending on model layout
+        if hasattr(self.model, 'fc'):
+            for param in self.model.fc.parameters():
+                param.requires_grad = True
+        elif hasattr(self.model, 'classifier'):
+            cls = self.model.classifier
+            # classifier may be a Module or Sequential; enable params for all children
+            for param in cls.parameters():
+                param.requires_grad = True
+        else:
+            try:
+                last = list(self.model.children())[-1]
+                for param in last.parameters():
+                    param.requires_grad = True
+            except Exception:
+                # fallback: enable all (safe fallback)
+                for param in self.model.parameters():
+                    param.requires_grad = True
 
     def unfreeze_all(self):
         for param in self.model.parameters():
@@ -138,6 +187,7 @@ class ModelTrainer:
                 print('-' * 10)
 
                 for phase in ['train', 'val']:
+                    
                     if phase == 'train':
                         self.model.train()
                     else:
