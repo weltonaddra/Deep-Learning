@@ -14,11 +14,8 @@ To run the model you must:
 Download the needed libraries:
 ---
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
----
 pip install numpy
----
 pip install matplotlib
----
 pip install pillow
 ---
 
