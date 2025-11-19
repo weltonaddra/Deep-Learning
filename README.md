@@ -1,4 +1,4 @@
-# Deep-Learning
+# Autovision
 
 
 ## Intro 
@@ -17,7 +17,10 @@ pip install numpy
 pip install matplotlib
 pip install pillow
 
-Clone all files from the github including chest xray files 
+The download the model weights from(file size was too big for github): 
+https://drive.google.com/file/d/11hzBnsYGyYy9UYdLWYfh899W3SwSym5c/view?usp=sharing
+
+Clone all files from the github including chest xray files.
 
 Run either the "main" file through the terminal, or the AutovisionGui file. 
 
