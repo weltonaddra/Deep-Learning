@@ -35,10 +35,10 @@ class ChestXRayDataset:
         orig_train_ds = datasets.ImageFolder(os.path.join(self.data_dir, 'train'), transform=self.transforms['train'])
         self.class_names = orig_train_ds.classes
 
-        # Calls functions to build the datasets, data loaders and gets the current device type 
+        # Calls functions to build the datasets, data loaders and gets the current device type
         self.datasets = self._build_datasets()
         self.dataloaders = self._build_dataloaders()
-        self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test', 'selected']}
+        self.dataset_sizes = {x: len(self.datasets[x]) for x in ['train', 'val', 'test']}
         self.device = self._get_device()
 
         print(f"Classes: {self.class_names}")
@@ -47,15 +47,15 @@ class ChestXRayDataset:
 
 
     def _build_datasets(self) -> dict:
-        # Splits the dataset into 4 splits: train, val, test, selected (This is for t)
-        splits = ['train', 'val', 'test','selected']
+        # Splits the dataset into train, val, test splits
+        splits = ['train', 'val', 'test']
         datasets_dict = {}
 
         for split in splits:
-            # Sets the image folder for the split 
+            # Sets the image folder for the split
             ds = datasets.ImageFolder(os.path.join(self.data_dir, split), transform=self.transforms[split])
 
-            # If a smaller fraction of the dataset is picked, it sets a random seed and splits the dataset accordingly 
+            # If a smaller fraction of the dataset is picked, it sets a random seed and splits the dataset accordingly
             if self.subset_fraction < 1.0:
                 random.seed(self.seed)
                 np.random.seed(self.seed)
@@ -63,7 +63,7 @@ class ChestXRayDataset:
                 ds = torch.utils.data.Subset(ds, indices)
 
             datasets_dict[split] = ds
-            
+
         return datasets_dict
 
     def _build_transforms(self) -> dict:
@@ -83,12 +83,6 @@ class ChestXRayDataset:
                 transforms.ToTensor(),
                 transforms.Normalize(Config.IMAGENET_MEAN, Config.IMAGENET_STD)
             ]),
-            'selected': transforms.Compose([
-                transforms.Grayscale(num_output_channels=3),
-                letterbox_224,
-                transforms.ToTensor(),
-                transforms.Normalize(Config.IMAGENET_MEAN, Config.IMAGENET_STD)
-            ]),
             'val': transforms.Compose([
                 transforms.Grayscale(num_output_channels=3),
                 letterbox_224,
@@ -103,8 +97,6 @@ class ChestXRayDataset:
                 self.datasets['train'], batch_size=Config.BATCH_SIZE, shuffle=True, num_workers=Config.NUM_WORKERS),
             'test': torch.utils.data.DataLoader(
                 self.datasets['test'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS),
-            'selected': torch.utils.data.DataLoader(
-                self.datasets['selected'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS),           
             'val': torch.utils.data.DataLoader(
                 self.datasets['val'], batch_size=Config.BATCH_SIZE, shuffle=False, num_workers=Config.NUM_WORKERS)
         }

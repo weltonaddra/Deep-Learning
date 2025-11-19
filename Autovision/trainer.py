@@ -69,16 +69,16 @@ class ModelTrainer:
             self.step_scheduler_per_batch = False
 
     def build_model(self):
-        # Build EfficientNet and adapt final fc to num classes
+        # Build ResNet50 and adapt final fc to num classes
         try:
-            weights = torchvision.models.EfficientNet_B0_Weights.DEFAULT
-            model = torchvision.models.efficientnet_b0(weights=weights)
+            weights = torchvision.models.ResNet50_Weights.DEFAULT
+            model = torchvision.models.resnet50(weights=weights)
         except Exception:
             # Fallback for older/newer torchvision compatibility
-            model = torchvision.models.efficientnet_b0(pretrained=True)
+            model = torchvision.models.resnet50(pretrained=True)
 
-        num_ftrs = model.classifier[1].in_features
-        model.classifier = torch.nn.Linear(num_ftrs, len(self.dataset.class_names))
+        num_ftrs = model.fc.in_features
+        model.fc = torch.nn.Linear(num_ftrs, len(self.dataset.class_names))
         return model.to(self.device)
 
     def load_checkpoint(self, path, map_location=None, reinit_fc_if_mismatch=True):
@@ -94,6 +94,7 @@ class ModelTrainer:
         matched = {k: v for k, v in saved_sd.items() if k in cur_sd and v.size() == cur_sd[k].size()}
         cur_sd.update(matched)
         self.model.load_state_dict(cur_sd)
+        self.model = self.model.to(map_location or self.device)
 
         # Reinitialize final classification head if mismatch between saved and current.
         # Support models that use either `fc` or `classifier` naming (different torchvision versions).

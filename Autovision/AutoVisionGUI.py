@@ -5,20 +5,22 @@ from tkinter import filedialog
 import os
 from tkinter import StringVar
 import threading
+import torch
 
-from traitlets import This 
+# from traitlets import This  # unused
 from dataset import ChestXRayDataset
 from trainer import ModelTrainer
 from config import Config
 
 # Model training
-dataset = ChestXRayDataset(subset_fraction=1)  
-trainer = ModelTrainer(dataset) 
-trained_model = trainer
+dataset = ChestXRayDataset(subset_fraction=1)
+trainer = ModelTrainer(dataset)
  # This is the name of the file where the model state dict will be saved
 savedPath = "AutovisionVer1.pt"
+trained_model = None
 if os.path.exists(savedPath):
-    trained_model = trainer.load_checkpoint(savedPath)  # safe load
+    trainer.load_checkpoint(savedPath)
+    trained_model = trainer.model
 
 
 
@@ -27,6 +29,7 @@ class AutoVisionGUI(Tk):
         Tk.__init__(self)
         self.title("AutoVision")
         self.geometry("500x500")
+        self.trained_model = trained_model
 
         menubar = Menu(self)
         self.config(menu=menubar)
@@ -60,17 +63,19 @@ class TestFrame(Frame):
         self.select_button.pack(pady=5)
         self.display_image()
         self.image.pack(pady=10)
+        self.result_label = Label(self, text="Prediction: ", font=('Arial', 12))
+        self.result_label.pack(pady=5)
         self.quit_button = Button(self, text="Quit", command=parent.quit)
         self.quit_button.pack(pady=5)
     
 # Displays the image file stored in the img var 
     def display_image(self):
-        img = ImageTk.PhotoImage(Image.open(self.imageLocation).resize((250, 250), Image.LANCZOS))
-        self.image.config(image = img)
+        self.photo_image = ImageTk.PhotoImage(Image.open(self.imageLocation).resize((250, 250), Image.LANCZOS))
+        self.image.config(image = self.photo_image)
 
 # Opens the file select menu 
     def change_image(self):
-        self.imageLocation = filedialog.askopenfilename(initialdir="/", title="Select Image", filetypes=(("png files","*.png"), ("jpeg files", "*.jpeg"), ("jpg files", "*.jpg"), ("All files", "*.*")))
+        self.imageLocation = filedialog.askopenfilename(initialdir="/", title="Select Image", filetypes=(("All files", "*.*"),("png files","*.png"), ("jpeg files", "*.jpeg"), ("jpg files", "*.jpg") ))
         self.check_select_button()
         self.display_image()
 
@@ -78,20 +83,28 @@ class TestFrame(Frame):
 # Else if there is an image location, it sets the button as on 
     def check_select_button(self):
         print(self.imageLocation)
-        if(self.imageLocation == ""):
+        if(self.imageLocation == "" or trained_model is None or self.imageLocation == self.startImage):
             self.select_button.config(state=DISABLED)
-            self.imageLocation = "" + self.startImage
         else:
             self.select_button.config(state=NORMAL)
+        if(self.imageLocation == ""):
+            self.imageLocation = "" + self.startImage
         
 
     def select_image(self):
-        print(self.imageLocation)
-
-
-
-# Menu displayed for training the AI
-# Directory and folder are used interchangeably. Folder is displayed on the user side. Directory is code side.
+        if trained_model is None:
+            self.result_label.config(text="No trained model available")
+            return
+        img = Image.open(self.imageLocation)
+        transformed_img = dataset.transforms['test'](img).unsqueeze(0).to(dataset.device)
+        trained_model.eval()
+        with torch.no_grad():
+            outputs = trained_model(transformed_img)
+            _, preds = torch.max(outputs, 1)
+            pred = preds.item()
+            class_name = dataset.class_names[pred]
+            self.result_label.config(text=f"Prediction: {class_name}")
+            
 class TrainFrame(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -132,8 +145,8 @@ class TrainFrame(Frame):
 
 
     def display_image(self, imgPath=os.path.join("Pneumonia_Image.jpg")):
-        img = ImageTk.PhotoImage(Image.open(self.imgPath).resize((225, 225), Image.LANCZOS))   
-        self.image.config(image = img)
+        self.photo_image = ImageTk.PhotoImage(Image.open(self.imgPath).resize((225, 225), Image.LANCZOS))
+        self.image.config(image = self.photo_image)
 
     def select_directory(self):
         self.trainDirectory.set(filedialog.askdirectory(title="Select a folder to train from"))
@@ -141,6 +154,7 @@ class TrainFrame(Frame):
         self.check_train_button()
         self.display_image()
         self.check_train_button()
+
 
     def check_train_button(self):
         if(self.trainDirectory.get() ==  self.nothingSelected):
@@ -175,6 +189,7 @@ class TrainFrame(Frame):
         def do_training():
             print(self.trainDirectory)
             trained_model = trainer.train_model()
+            self.master.trained_model = trained_model
             self.after(0, self.stop_animation)
             self.after(0, lambda: self.train_button.config(state=NORMAL))
         thread = threading.Thread(target=do_training)
