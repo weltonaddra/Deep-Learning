@@ -39,3 +39,12 @@ https://drive.google.com/file/d/11hzBnsYGyYy9UYdLWYfh899W3SwSym5c/view?usp=shari
 Clone all files from the github including chest xray files.
 
 Run either the "main" file through the terminal, or the AutovisionGui file.
+
+### Authors
+Team AutoVision
+* Welton Addra
+* Russell Bledsoe
+* Evan Bradshaw
+* Wyatt Bridges
+* Moana Leo
+* Brent Lewis
