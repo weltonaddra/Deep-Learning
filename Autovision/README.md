@@ -1,16 +1,28 @@
 # Autovision
 
 ## Intro
-
 Welcome to Autovision, a Pnemonia vision learning Pytorch project.
 Our model is trained on a large dataset to classify Xray images as either normal,
 viral pneumonia, or bacterial pneumonia.
 
-## Running The model
+## Description
+AutoVision is a pnuemonia vision learning project built with PyTorch and ResNet-50.
+* Loads and preprocesses chest x-ray images into train/val/test splits
+* Trains a ResNet-50 convolutional neual network, which is a popular deep learning model for image classification.
+* Provides a GUI for loading a single image and predicting whether it is Normal, Viral Pneumonia, or Bacterial Pneumonia using trained model weights.
+
+The project is organized into the following componenets:
+* dataset.py: dataset loading, transforms, and dataloaders.
+* trainer.py: model building, training, testing, and visualization.
+* visuals.py: configuration for paths and hyperparameters.
+* main.py: CLI entry point for training/testing
+* AutoVisionGUI.py: Tkinter GUI for interactive inference. 
+
+## Running the Model
 
 To run the model you must:
 
-### Download the needed libraries:
+### Install the required libraries:
 
 ---
 
